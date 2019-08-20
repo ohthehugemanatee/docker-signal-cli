@@ -1,4 +1,4 @@
-FROM alpine:3.10
+FROM openjdk:14-alpine
 
 ENV VERSION "0.6.2"
 
