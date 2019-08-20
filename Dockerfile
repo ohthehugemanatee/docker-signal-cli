@@ -8,4 +8,3 @@ RUN set -e \
   && wget https://github.com/AsamK/signal-cli/releases/download/v"${VERSION}"/signal-cli-"${VERSION}".tar.gz -O /tmp/signal-cli.tar.gz \
   && tar -xzf /tmp/signal-cli.tar.gz -C /opt \
   && ln -sf /opt/signal-cli-"${VERSION}"/bin/signal-cli /usr/local/bin/
-
