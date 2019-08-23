@@ -6,6 +6,7 @@ import (
 	"fmt"
 	"io"
 	"log"
+	"os"
 	"os/exec"
 )
 
@@ -42,12 +43,15 @@ type Message struct {
 }
 
 func main() {
-
+	Args := os.Args[1:]
+	if len(Args) < 2 {
+		log.Fatal("you must provide two arguments: your phone number (already registered on this device with signal-cli, and the target Group ID")
+	}
+	CollectMessages(Args[0], Args[1], os.Stdout)
 }
 
 // CollectMessages from Signal-cli.
-func CollectMessages(writer io.Writer) {
-	myPhone := "+4915146621809"
+func CollectMessages(myPhone string, targetGroupID string, writer io.Writer) {
 	cmd := exec.Command("signal-cli", "-u", myPhone, "receive", "-t", "-1", "--json")
 	stdout, err := cmd.StdoutPipe()
 	if err != nil {
