@@ -3,6 +3,7 @@ package main
 import (
 	"bufio"
 	"encoding/json"
+	"flag"
 	"fmt"
 	"io"
 	"log"
@@ -43,11 +44,20 @@ type Message struct {
 }
 
 func main() {
-	Args := os.Args[1:]
-	if len(Args) < 2 {
-		log.Fatal("you must provide two arguments: your phone number (already registered on this device with signal-cli, and the target Group ID")
+	myPhone := flag.String("p", "", "the recipient account's phone number")
+	targetGroupID := flag.String("g", "", "The Signal Group ID to monitor")
+	flag.Usage = func() {
+		fmt.Printf("Syntax:\n\tsignal-nixplay-bridge [flags]\nwhere flags are:\n")
+		flag.PrintDefaults()
 	}
-	CollectMessages(Args[0], Args[1], os.Stdout)
+	flag.Parse()
+
+	if *myPhone == "" || *targetGroupID == "" {
+		flag.Usage()
+		return
+	}
+	fmt.Printf("Monitoring...")
+	CollectMessages(*myPhone, *targetGroupID, os.Stdout)
 }
 
 // CollectMessages from Signal-cli.
