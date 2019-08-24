@@ -7,6 +7,7 @@ import (
 	"fmt"
 	"io"
 	"log"
+	"net/smtp"
 	"os"
 	"os/exec"
 )
@@ -14,7 +15,12 @@ import (
 const mailSubject string = "Automatic image submission from Signal"
 const mailBody string = "Dear Nixplay. Add this, please."
 
-var nixplayEmail string = ""
+var NixplayEmail string
+var MailServer string
+var MailUser string
+var MailPass string
+var MailFrom string
+var MailPort string = "587"
 
 // Attachment from signal-cli
 type Attachment struct {
@@ -52,21 +58,30 @@ func main() {
 	phonePtr := flag.String("p", "", "the recipient account's phone number")
 	groupPtr := flag.String("g", "", "The Signal Group ID to monitor")
 	mailPtr := flag.String("e", "", "The destination Nixplay email")
+	mailUserPtr := flag.String("e", "", "The SMTP user")
+	mailPassPtr := flag.String("e", "", "The SMTP password")
+	MPtr := flag.String("e", "", "The SMTP Server")
+	mailFromPtr := flag.String("e", "", "The SMTP from address")
+
 	flag.Usage = func() {
 		fmt.Printf("Syntax:\n\tsignal-nixplay-bridge [flags]\nwhere flags are:\n")
 		flag.PrintDefaults()
 	}
 	flag.Parse()
-	myPhone := *phonePtr
-	targetGroupID := *groupPtr
-	nixplayEmail := *mailPtr
+	MyPhone := *phonePtr
+	TargetGroupID := *groupPtr
+	NixplayEmail = *mailPtr
+	MailServer = *MPtr
+	MailUser = *mailUserPtr
+	MailPass = *mailPassPtr
+	MailFrom = *mailFromPtr
 
-	if myPhone == "" || targetGroupID == "" || nixplayEmail == "" {
+	if MyPhone == "" || TargetGroupID == "" || NixplayEmail == "" {
 		flag.Usage()
 		return
 	}
 	fmt.Printf("Monitoring...")
-	CollectMessages(myPhone, targetGroupID, os.Stdout)
+	CollectMessages(MyPhone, TargetGroupID, os.Stdout)
 }
 
 // CollectMessages from Signal-cli.
@@ -112,4 +127,15 @@ func FilterMessages(stdout io.Reader, targetGroupID string, writer io.Writer) {
 		}
 	}()
 
+}
+
+func SendMail(file string) {
+	body := "To: " + NixplayEmail + "\r\nSubject: " +
+		mailSubject + "\r\n\r\n" + mailBody
+	auth := smtp.PlainAuth("", MailUser, MailPass, MailServer)
+	err := smtp.SendMail(MailServer+":"+MailPort, auth, MailFrom,
+		[]string{NixplayEmail}, []byte(body))
+	if err != nil {
+		log.Fatal(err)
+	}
 }
