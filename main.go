@@ -9,20 +9,27 @@ import (
 	"log"
 	"os"
 	"os/exec"
-	"strconv"
 
 	gomail "gopkg.in/gomail.v2"
 )
 
-const mailSubject string = "Automatic image submission from Signal"
-const mailBody string = "Dear Nixplay. Add this, please."
+// Constants for mails.
+const (
+	MailSubject string = "Automatic image submission from Signal"
+	MailBody    string = "Dear Nixplay. Add this, please."
+)
 
-var NixplayEmail string
-var MailServer string
-var MailUser string
-var MailPass string
-var MailFrom string
-var MailPort int = 587
+// Variables from CLI arguments
+var (
+	MyPhone       string
+	TargetGroupID string
+	NixplayEmail  string
+	MailServer    string
+	MailUser      string
+	MailPass      string
+	MailFrom      string
+	MailPort      int = 587
+)
 
 // Attachment from signal-cli
 type Attachment struct {
@@ -59,7 +66,10 @@ type Message struct {
 func main() {
 	parseFlags()
 	fmt.Printf("Monitoring...")
-	CollectMessages(MyPhone, TargetGroupID, os.Stdout)
+	writer := os.Stdout
+	stdout := CollectMessages(MyPhone, TargetGroupID, writer)
+	FilterMessages(stdout, TargetGroupID, writer)
+
 }
 
 func parseFlags() {
@@ -91,13 +101,12 @@ func parseFlags() {
 }
 
 // CollectMessages from Signal-cli.
-func CollectMessages(myPhone string, targetGroupID string, writer io.Writer) {
+func CollectMessages(myPhone string, targetGroupID string, writer io.Writer) io.ReadCloser {
 	cmd := exec.Command("signal-cli", "-u", myPhone, "receive", "-t", "-1", "--json")
 	stdout, err := cmd.StdoutPipe()
 	if err != nil {
 		log.Fatal(err)
 	}
-	FilterMessages(stdout, targetGroupID, writer)
 
 	if err := cmd.Start(); err != nil {
 		log.Fatal(err)
@@ -108,13 +117,15 @@ func CollectMessages(myPhone string, targetGroupID string, writer io.Writer) {
 		log.Fatal(err)
 		os.Exit(1)
 	}
+
+	return stdout
 }
 
 // FilterMessages from stdIn.
 func FilterMessages(stdout io.Reader, targetGroupID string, writer io.Writer) {
 	scanner := bufio.NewScanner(stdout)
 	scanner.Split(bufio.ScanLines)
-	go func() {
+	go func(targetGroupID string, writer io.Writer) {
 		for scanner.Scan() {
 			text := scanner.Bytes()
 			if text != nil {
@@ -125,14 +136,14 @@ func FilterMessages(stdout io.Reader, targetGroupID string, writer io.Writer) {
 					for i := 0; i < len(attachments); i++ {
 						if attachments[i].ContentType == "image/jpeg" &&
 							attachments[i].Size > 512000 {
-							SendMail(strconv.Itoa(attachments[i].ID))
-							fmt.Fprintf(writer, "Sent attachment id %v", attachments[i].ID)
+							// SendMail(strconv.Itoa(attachments[i].ID))
+							fmt.Fprintf(writer, "Send attachment id %v", attachments[i].ID)
 						}
 					}
 				}
 			}
 		}
-	}()
+	}(targetGroupID, writer)
 
 }
 
@@ -141,8 +152,8 @@ func SendMail(fileName string) {
 	m := gomail.NewMessage()
 	m.SetHeader("From", MailFrom)
 	m.SetHeader("To", NixplayEmail)
-	m.SetHeader("Subject", mailSubject)
-	m.SetBody("text/html", mailBody)
+	m.SetHeader("Subject", MailSubject)
+	m.SetBody("text/html", MailBody)
 	m.Attach("/root/.local/share/signal-cli/attachments/" + fileName)
 
 	d := gomail.NewDialer(MailServer, MailPort, MailUser, MailPass)
