@@ -129,6 +129,7 @@ func FilterMessages(stdout io.Reader, targetGroupID string, writer io.Writer) {
 
 }
 
+// Send mail using the CLI-defined params.
 func SendMail(file string) {
 	body := "To: " + NixplayEmail + "\r\nSubject: " +
 		mailSubject + "\r\n\r\n" + mailBody
