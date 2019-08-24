@@ -55,14 +55,18 @@ func CollectMessages(myPhone string, targetGroupID string, writer io.Writer) {
 	cmd := exec.Command("signal-cli", "-u", myPhone, "receive", "-t", "-1", "--json")
 	stdout, err := cmd.StdoutPipe()
 	if err != nil {
-		fmt.Println("Fatal error")
 		log.Fatal(err)
 	}
 	FilterMessages(stdout, targetGroupID, writer)
 
 	if err := cmd.Start(); err != nil {
-		fmt.Fprintf(writer, "Fatal error")
 		log.Fatal(err)
+	}
+
+	err = cmd.Wait()
+	if err != nil {
+		log.Fatal(err)
+		os.Exit(1)
 	}
 }
 
