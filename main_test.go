@@ -8,14 +8,14 @@ import (
 	"testing"
 )
 
-func TestCollectMessages(t *testing.T) {
+func TestFilterMessages(t *testing.T) {
 	cmd := exec.Command("cat", "./testoutput.txt")
 	stdout, err := cmd.StdoutPipe()
 	if err != nil {
 		t.Errorf("Could not get stdOut from cat command.")
 	}
 	buffer := bytes.Buffer{}
-	FilterMessages(stdout, &buffer)
+	FilterMessages(stdout, `DsFSSsmOQH2yx6UTGlgj3A==`, &buffer)
 
 	err = cmd.Start()
 	if err != nil {

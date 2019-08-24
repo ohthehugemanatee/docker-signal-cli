@@ -58,7 +58,7 @@ func CollectMessages(myPhone string, targetGroupID string, writer io.Writer) {
 		fmt.Println("Fatal error")
 		log.Fatal(err)
 	}
-	FilterMessages(stdout, writer)
+	FilterMessages(stdout, targetGroupID, writer)
 
 	if err := cmd.Start(); err != nil {
 		fmt.Fprintf(writer, "Fatal error")
@@ -67,7 +67,7 @@ func CollectMessages(myPhone string, targetGroupID string, writer io.Writer) {
 }
 
 // FilterMessages from stdIn.
-func FilterMessages(stdout io.Reader, writer io.Writer) {
+func FilterMessages(stdout io.Reader, targetGroupID string, writer io.Writer) {
 	scanner := bufio.NewScanner(stdout)
 	scanner.Split(bufio.ScanLines)
 	go func() {
@@ -77,8 +77,7 @@ func FilterMessages(stdout io.Reader, writer io.Writer) {
 				var message Message
 				json.Unmarshal(text, &message)
 				attachments := message.Envelope.DataMessage.Attachments
-				// if the message meets criteria, write into a channel
-				if (message.Envelope.DataMessage.GroupInfo.GroupID == "DsFSSsmOQH2yx6UTGlgj3A==") && (attachments != nil) {
+				if message.Envelope.DataMessage.GroupInfo.GroupID == targetGroupID && attachments != nil {
 					for i := 0; i < len(attachments); i++ {
 						if attachments[i].ContentType == "image/jpeg" &&
 							attachments[i].Size > 512000 {
