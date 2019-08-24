@@ -7,9 +7,10 @@ import (
 	"fmt"
 	"io"
 	"log"
-	"net/smtp"
 	"os"
 	"os/exec"
+
+	gomail "gopkg.in/gomail.v2"
 )
 
 const mailSubject string = "Automatic image submission from Signal"
@@ -20,7 +21,7 @@ var MailServer string
 var MailUser string
 var MailPass string
 var MailFrom string
-var MailPort string = "587"
+var MailPort int = 587
 
 // Attachment from signal-cli
 type Attachment struct {
@@ -119,7 +120,8 @@ func FilterMessages(stdout io.Reader, targetGroupID string, writer io.Writer) {
 					for i := 0; i < len(attachments); i++ {
 						if attachments[i].ContentType == "image/jpeg" &&
 							attachments[i].Size > 512000 {
-							fmt.Fprintf(writer, "Send attachment id %v", attachments[i].ID)
+							SendMail(attachments[i].ID)
+							fmt.Fprintf(writer, "Sent attachment id %v", attachments[i].ID)
 						}
 					}
 				}
@@ -129,14 +131,17 @@ func FilterMessages(stdout io.Reader, targetGroupID string, writer io.Writer) {
 
 }
 
-// Send mail using the CLI-defined params.
+// SendMail using the CLI-defined params.
 func SendMail(file string) {
-	body := "To: " + NixplayEmail + "\r\nSubject: " +
-		mailSubject + "\r\n\r\n" + mailBody
-	auth := smtp.PlainAuth("", MailUser, MailPass, MailServer)
-	err := smtp.SendMail(MailServer+":"+MailPort, auth, MailFrom,
-		[]string{NixplayEmail}, []byte(body))
-	if err != nil {
+	m := gomail.NewMessage()
+	m.SetHeader("From", MailFrom)
+	m.SetHeader("To", NixplayEmail)
+	m.SetHeader("Subject", mailSubject)
+	m.SetBody("text/html", mailBody)
+	m.Attach("/root/.local/share/signal-cli/attachments/" + file)
+
+	d := gomail.NewDialer(MailServer, MailPort, MailUser, MailPass)
+	if err := d.DialAndSend(m); err != nil {
 		log.Fatal(err)
 	}
 }
