@@ -11,6 +11,11 @@ import (
 	"os/exec"
 )
 
+const mailSubject string = "Automatic image submission from Signal"
+const mailBody string = "Dear Nixplay. Add this, please."
+
+var nixplayEmail string = ""
+
 // Attachment from signal-cli
 type Attachment struct {
 	ContentType string
@@ -44,20 +49,24 @@ type Message struct {
 }
 
 func main() {
-	myPhone := flag.String("p", "", "the recipient account's phone number")
-	targetGroupID := flag.String("g", "", "The Signal Group ID to monitor")
+	phonePtr := flag.String("p", "", "the recipient account's phone number")
+	groupPtr := flag.String("g", "", "The Signal Group ID to monitor")
+	mailPtr := flag.String("e", "", "The destination Nixplay email")
 	flag.Usage = func() {
 		fmt.Printf("Syntax:\n\tsignal-nixplay-bridge [flags]\nwhere flags are:\n")
 		flag.PrintDefaults()
 	}
 	flag.Parse()
+	myPhone := *phonePtr
+	targetGroupID := *groupPtr
+	nixplayEmail := *mailPtr
 
-	if *myPhone == "" || *targetGroupID == "" {
+	if myPhone == "" || targetGroupID == "" || nixplayEmail == "" {
 		flag.Usage()
 		return
 	}
 	fmt.Printf("Monitoring...")
-	CollectMessages(*myPhone, *targetGroupID, os.Stdout)
+	CollectMessages(myPhone, targetGroupID, os.Stdout)
 }
 
 // CollectMessages from Signal-cli.
