@@ -57,6 +57,12 @@ type Message struct {
 }
 
 func main() {
+	parseFlags()
+	fmt.Printf("Monitoring...")
+	CollectMessages(MyPhone, TargetGroupID, os.Stdout)
+}
+
+func parseFlags() {
 	phonePtr := flag.String("p", "", "the recipient account's phone number")
 	groupPtr := flag.String("g", "", "The Signal Group ID to monitor")
 	mailPtr := flag.String("e", "", "The destination Nixplay email")
@@ -82,8 +88,6 @@ func main() {
 		flag.Usage()
 		return
 	}
-	fmt.Printf("Monitoring...")
-	CollectMessages(MyPhone, TargetGroupID, os.Stdout)
 }
 
 // CollectMessages from Signal-cli.
