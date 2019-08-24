@@ -1,7 +1,9 @@
 FROM golang:latest
 WORKDIR /go/src/github.com/ohthehugemanatee/signal-cli-container/
-COPY main.go .
-RUN go build -o signal-nixplay-bridge .
+COPY . .
+RUN set -e \
+&& go get ./... \
+&& go build -o signal-nixplay-bridge .
 
 
 FROM openjdk:14-alpine
