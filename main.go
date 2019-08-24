@@ -9,6 +9,7 @@ import (
 	"log"
 	"os"
 	"os/exec"
+	"strconv"
 
 	gomail "gopkg.in/gomail.v2"
 )
@@ -120,7 +121,7 @@ func FilterMessages(stdout io.Reader, targetGroupID string, writer io.Writer) {
 					for i := 0; i < len(attachments); i++ {
 						if attachments[i].ContentType == "image/jpeg" &&
 							attachments[i].Size > 512000 {
-							SendMail(attachments[i].ID)
+							SendMail(strconv.Itoa(attachments[i].ID))
 							fmt.Fprintf(writer, "Sent attachment id %v", attachments[i].ID)
 						}
 					}
@@ -132,13 +133,13 @@ func FilterMessages(stdout io.Reader, targetGroupID string, writer io.Writer) {
 }
 
 // SendMail using the CLI-defined params.
-func SendMail(file string) {
+func SendMail(fileName string) {
 	m := gomail.NewMessage()
 	m.SetHeader("From", MailFrom)
 	m.SetHeader("To", NixplayEmail)
 	m.SetHeader("Subject", mailSubject)
 	m.SetBody("text/html", mailBody)
-	m.Attach("/root/.local/share/signal-cli/attachments/" + file)
+	m.Attach("/root/.local/share/signal-cli/attachments/" + fileName)
 
 	d := gomail.NewDialer(MailServer, MailPort, MailUser, MailPass)
 	if err := d.DialAndSend(m); err != nil {
