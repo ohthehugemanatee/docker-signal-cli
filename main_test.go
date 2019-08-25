@@ -15,13 +15,14 @@ func TestFilterMessages(t *testing.T) {
 		t.Errorf("Could not get stdOut from cat command.")
 	}
 	buffer := bytes.Buffer{}
-	FilterMessages(stdout, `DsFSSsmOQH2yx6UTGlgj3A==`, &buffer)
 
 	err = cmd.Start()
 	if err != nil {
 		fmt.Fprintln(os.Stderr, "Error starting Cmd", err)
 		os.Exit(1)
 	}
+
+	FilterMessages(stdout, `DsFSSsmOQH2yx6UTGlgj3A==`, &buffer)
 
 	err = cmd.Wait()
 	if err != nil {

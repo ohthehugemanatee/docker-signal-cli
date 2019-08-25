@@ -9,6 +9,7 @@ import (
 	"log"
 	"os"
 	"os/exec"
+	"sync"
 
 	gomail "gopkg.in/gomail.v2"
 )
@@ -125,12 +126,15 @@ func CollectMessages(myPhone string, targetGroupID string, writer io.Writer) io.
 func FilterMessages(stdout io.Reader, targetGroupID string, writer io.Writer) {
 	scanner := bufio.NewScanner(stdout)
 	scanner.Split(bufio.ScanLines)
-	go func(targetGroupID string, writer io.Writer) {
-		for scanner.Scan() {
-			text := scanner.Bytes()
-			if text != nil {
+	wg := new(sync.WaitGroup)
+	for scanner.Scan() {
+		wg.Add(1)
+		text := scanner.Bytes()
+		go func(t []byte) {
+			defer wg.Done()
+			if t != nil {
 				var message Message
-				json.Unmarshal(text, &message)
+				json.Unmarshal(t, &message)
 				attachments := message.Envelope.DataMessage.Attachments
 				if message.Envelope.DataMessage.GroupInfo.GroupID == targetGroupID && attachments != nil {
 					for i := 0; i < len(attachments); i++ {
@@ -142,8 +146,9 @@ func FilterMessages(stdout io.Reader, targetGroupID string, writer io.Writer) {
 					}
 				}
 			}
-		}
-	}(targetGroupID, writer)
+		}(text)
+	}
+	wg.Wait()
 
 }
 
