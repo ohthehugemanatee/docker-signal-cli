@@ -68,9 +68,13 @@ func main() {
 	parseFlags()
 	fmt.Printf("Monitoring...")
 	writer := os.Stdout
-	stdout := CollectMessages(MyPhone, TargetGroupID, writer)
+	cmd, stdout := StartSignal(MyPhone, TargetGroupID, writer)
 	FilterMessages(stdout, TargetGroupID, writer)
-
+	err := cmd.Wait()
+	if err != nil {
+		log.Fatal(err)
+		os.Exit(1)
+	}
 }
 
 func parseFlags() {
@@ -101,8 +105,8 @@ func parseFlags() {
 	}
 }
 
-// CollectMessages from Signal-cli.
-func CollectMessages(myPhone string, targetGroupID string, writer io.Writer) io.ReadCloser {
+// StartSignal starts the Signal-cli.
+func StartSignal(myPhone string, targetGroupID string, writer io.Writer) (*exec.Cmd, io.ReadCloser) {
 	cmd := exec.Command("signal-cli", "-u", myPhone, "receive", "-t", "-1", "--json")
 	stdout, err := cmd.StdoutPipe()
 	if err != nil {
@@ -113,13 +117,7 @@ func CollectMessages(myPhone string, targetGroupID string, writer io.Writer) io.
 		log.Fatal(err)
 	}
 
-	err = cmd.Wait()
-	if err != nil {
-		log.Fatal(err)
-		os.Exit(1)
-	}
-
-	return stdout
+	return cmd, stdout
 }
 
 // FilterMessages from stdIn.
