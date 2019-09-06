@@ -9,7 +9,6 @@ import (
 	"log"
 	"os"
 	"os/exec"
-	"sync"
 
 	gomail "gopkg.in/gomail.v2"
 )
@@ -124,12 +123,9 @@ func StartSignal(myPhone string, targetGroupID string, writer io.Writer) (*exec.
 func FilterMessages(stdout io.Reader, targetGroupID string, writer io.Writer) {
 	scanner := bufio.NewScanner(stdout)
 	scanner.Split(bufio.ScanLines)
-	wg := new(sync.WaitGroup)
 	for scanner.Scan() {
-		wg.Add(1)
 		text := scanner.Bytes()
 		go func(t []byte) {
-			defer wg.Done()
 			if t != nil {
 				var message Message
 				json.Unmarshal(t, &message)
@@ -146,8 +142,6 @@ func FilterMessages(stdout io.Reader, targetGroupID string, writer io.Writer) {
 			}
 		}(text)
 	}
-	wg.Wait()
-
 }
 
 // SendMail using the CLI-defined params.
