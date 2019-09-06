@@ -102,7 +102,7 @@ func parseFlags() {
 	MailPass = *mailPassPtr
 	MailFrom = *mailFromPtr
 
-	if MyPhone == "" || TargetGroupID == "" || NixplayEmail == "" || Mailserver == "" || MailUser == "" || MailPass == "" || MailFrom == "" {
+	if MyPhone == "" || TargetGroupID == "" || NixplayEmail == "" || MailServer == "" || MailUser == "" || MailPass == "" || MailFrom == "" {
 		flag.Usage()
 		return
 	}
