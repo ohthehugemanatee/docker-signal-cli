@@ -84,10 +84,10 @@ func parseFlags() {
 	phonePtr := flag.String("p", "", "the recipient account's phone number")
 	groupPtr := flag.String("g", "", "The Signal Group ID to monitor")
 	mailPtr := flag.String("e", "", "The destination Nixplay email")
-	mailUserPtr := flag.String("e", "", "The SMTP user")
-	mailPassPtr := flag.String("e", "", "The SMTP password")
-	MPtr := flag.String("e", "", "The SMTP Server")
-	mailFromPtr := flag.String("e", "", "The SMTP from address")
+	mailUserPtr := flag.String("user", "", "The SMTP user")
+	mailPassPtr := flag.String("pass", "", "The SMTP password")
+	MPtr := flag.String("s", "", "The SMTP Server")
+	mailFromPtr := flag.String("f", "", "The SMTP from address")
 
 	flag.Usage = func() {
 		fmt.Printf("Syntax:\n\tsignal-nixplay-bridge [flags]\nwhere flags are:\n")
@@ -102,7 +102,7 @@ func parseFlags() {
 	MailPass = *mailPassPtr
 	MailFrom = *mailFromPtr
 
-	if MyPhone == "" || TargetGroupID == "" || NixplayEmail == "" {
+	if MyPhone == "" || TargetGroupID == "" || NixplayEmail == "" || Mailserver == "" || MailUser == "" || MailPass == "" || MailFrom == "" {
 		flag.Usage()
 		return
 	}
