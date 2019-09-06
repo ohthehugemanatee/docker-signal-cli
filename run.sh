@@ -14,6 +14,27 @@ if [ -z ${GROUPID} ]; then
   exit 1
 fi
 
+if [ -z ${DESTMAIL} ]; then
+  echo "you must set the DESTMAIL variable to the destination Nixplay email address."
+  exit 1
+fi
+
+if [ -z ${SMTPUSER} ]; then
+  echo "you must set the SMTPUSER variable to the SMTP username for sending."
+  exit 1
+fi
+if [ -z ${SMTPPASS} ]; then
+  echo "you must set the SMTPPASS variable to the SMTP password for sending."
+  exit 1
+fi
+if [ -z ${SMTPSERVER} ]; then
+  echo "you must set the SMTPSERVER variable to the SMTP server for sending."
+  exit 1
+fi
+if [ -z ${SMTPFROM} ]; then
+  echo "you must set the SMTPFROM variable to the SMTP 'from' email for sending."
+  exit 1
+fi
 
 # You have to choose where to save all of signal's stuff. A reasonable default is ~/.local/share/signal-cli , but whatever man.
 if [ -z ${DATADIR} ]; then
