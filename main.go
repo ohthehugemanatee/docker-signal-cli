@@ -29,7 +29,7 @@ var (
 	MailUser      string
 	MailPass      string
 	MailFrom      string
-	MailPort      int = 587
+	MailPort      = 587
 )
 
 // Attachment from signal-cli
