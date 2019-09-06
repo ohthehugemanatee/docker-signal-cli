@@ -22,7 +22,10 @@ func TestFilterMessages(t *testing.T) {
 		os.Exit(1)
 	}
 
-	FilterMessages(stdout, `DsFSSsmOQH2yx6UTGlgj3A==`, &buffer)
+	channel := make(chan string)
+	defer close(channel)
+
+	FilterMessages(stdout, `DsFSSsmOQH2yx6UTGlgj3A==`, channel, &buffer)
 
 	err = cmd.Wait()
 	if err != nil {

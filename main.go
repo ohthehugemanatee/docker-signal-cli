@@ -9,6 +9,7 @@ import (
 	"log"
 	"os"
 	"os/exec"
+	"strconv"
 
 	gomail "gopkg.in/gomail.v2"
 )
@@ -68,7 +69,10 @@ func main() {
 	fmt.Printf("Monitoring...")
 	writer := os.Stdout
 	cmd, stdout := StartSignal(MyPhone, TargetGroupID, writer)
-	FilterMessages(stdout, TargetGroupID, writer)
+	filenameChannel := make(chan string)
+	defer close(filenameChannel)
+	SendMail(filenameChannel)
+	FilterMessages(stdout, TargetGroupID, filenameChannel, writer)
 	err := cmd.Wait()
 	if err != nil {
 		log.Fatal(err)
@@ -120,7 +124,7 @@ func StartSignal(myPhone string, targetGroupID string, writer io.Writer) (*exec.
 }
 
 // FilterMessages from stdIn.
-func FilterMessages(stdout io.Reader, targetGroupID string, writer io.Writer) {
+func FilterMessages(stdout io.Reader, targetGroupID string, filenameChannel chan string, writer io.Writer) {
 	scanner := bufio.NewScanner(stdout)
 	scanner.Split(bufio.ScanLines)
 	for scanner.Scan() {
@@ -134,7 +138,7 @@ func FilterMessages(stdout io.Reader, targetGroupID string, writer io.Writer) {
 					for i := 0; i < len(attachments); i++ {
 						if attachments[i].ContentType == "image/jpeg" &&
 							attachments[i].Size > 512000 {
-							// SendMail(strconv.Itoa(attachments[i].ID))
+							filenameChannel <- strconv.Itoa(attachments[i].ID)
 							fmt.Fprintf(writer, "Send attachment id %v", attachments[i].ID)
 						}
 					}
@@ -145,7 +149,8 @@ func FilterMessages(stdout io.Reader, targetGroupID string, writer io.Writer) {
 }
 
 // SendMail using the CLI-defined params.
-func SendMail(fileName string) {
+func SendMail(filenameChannel chan string) {
+	fileName := <-filenameChannel
 	m := gomail.NewMessage()
 	m.SetHeader("From", MailFrom)
 	m.SetHeader("To", NixplayEmail)
