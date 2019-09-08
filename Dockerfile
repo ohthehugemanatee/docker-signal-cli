@@ -3,7 +3,7 @@ WORKDIR /go/src/github.com/ohthehugemanatee/signal-cli-container/
 COPY . .
 RUN set -e \
 && go get ./... \
-&& go build -o signal-nixplay-bridge .
+&& CGO_ENABLED=1 go build -tags netgo -a -v -o signal-nixplay-bridge .
 
 
 FROM openjdk:14-alpine
