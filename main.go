@@ -71,7 +71,7 @@ func main() {
 	cmd, stdout := StartSignal(MyPhone, TargetGroupID, writer)
 	filenameChannel := make(chan string)
 	defer close(filenameChannel)
-	SendMail(filenameChannel)
+	go SendMail(filenameChannel)
 	FilterMessages(stdout, TargetGroupID, filenameChannel, writer)
 	err := cmd.Wait()
 	if err != nil {
@@ -129,22 +129,20 @@ func FilterMessages(stdout io.Reader, targetGroupID string, filenameChannel chan
 	scanner.Split(bufio.ScanLines)
 	for scanner.Scan() {
 		text := scanner.Bytes()
-		go func(t []byte) {
-			if t != nil {
-				var message Message
-				json.Unmarshal(t, &message)
-				attachments := message.Envelope.DataMessage.Attachments
-				if message.Envelope.DataMessage.GroupInfo.GroupID == targetGroupID && attachments != nil {
-					for i := 0; i < len(attachments); i++ {
-						if attachments[i].ContentType == "image/jpeg" &&
-							attachments[i].Size > 512000 {
-							filenameChannel <- strconv.Itoa(attachments[i].ID)
-							fmt.Fprintf(writer, "Send attachment id %v", attachments[i].ID)
-						}
+		if text != nil {
+			var message Message
+			json.Unmarshal(text, &message)
+			attachments := message.Envelope.DataMessage.Attachments
+			if message.Envelope.DataMessage.GroupInfo.GroupID == targetGroupID && attachments != nil {
+				for i := 0; i < len(attachments); i++ {
+					if attachments[i].ContentType == "image/jpeg" &&
+						attachments[i].Size > 512000 {
+						filenameChannel <- strconv.Itoa(attachments[i].ID)
+						fmt.Fprintf(writer, "Send attachment id %v", attachments[i].ID)
 					}
 				}
 			}
-		}(text)
+		}
 	}
 }
 
