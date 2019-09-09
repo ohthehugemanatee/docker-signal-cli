@@ -16,7 +16,7 @@ import (
 
 // Constants for mails.
 const (
-	MailSubject string = "Automatic image submission from Signal"
+	MailSubject string = "Automatic image submission from Signal, pl: My Playlist"
 	MailBody    string = "Dear Nixplay. Add this, please."
 )
 
