@@ -71,7 +71,7 @@ func main() {
 	cmd, stdout := StartSignal(MyPhone, TargetGroupID, writer)
 	filenameChannel := make(chan string)
 	defer close(filenameChannel)
-	go SendMail(filenameChannel)
+	go processFile(filenameChannel)
 	FilterMessages(stdout, TargetGroupID, filenameChannel, writer)
 	err := cmd.Wait()
 	if err != nil {
@@ -154,18 +154,53 @@ func FilterMessages(stdout io.Reader, targetGroupID string, filenameChannel chan
 	}()
 }
 
-// SendMail using the CLI-defined params.
-func SendMail(filenameChannel chan string) {
+func processFile(filenameChannel chan string) {
 	fileName := <-filenameChannel
+	originalFilePath := "/root/.local/share/signal-cli/attachments/" + fileName
+	tmpFileName := "/tmp/" + fileName + ".jpg"
+	copyFile(originalFilePath, tmpFileName)
+	sendMail(tmpFileName)
+	err := os.Remove(tmpFileName)
+	if err != nil {
+		fmt.Println(err)
+	}
+}
+
+func sendMail(fileName string) {
 	m := gomail.NewMessage()
 	m.SetHeader("From", MailFrom)
 	m.SetHeader("To", NixplayEmail)
 	m.SetHeader("Subject", MailSubject)
 	m.SetBody("text/html", MailBody)
-	m.Attach("/root/.local/share/signal-cli/attachments/" + fileName)
+	m.Attach(fileName)
 
 	d := gomail.NewDialer(MailServer, MailPort, MailUser, MailPass)
 	if err := d.DialAndSend(m); err != nil {
 		log.Println(err)
 	}
+}
+
+func copyFile(src, dst string) error {
+	sourceFileStat, err := os.Stat(src)
+	if err != nil {
+		return err
+	}
+
+	if !sourceFileStat.Mode().IsRegular() {
+		return fmt.Errorf("%s is not a regular file", src)
+	}
+
+	source, err := os.Open(src)
+	if err != nil {
+		return err
+	}
+	defer source.Close()
+
+	destination, err := os.Create(dst)
+	if err != nil {
+		return err
+	}
+	defer destination.Close()
+	_, err = io.Copy(destination, source)
+	return err
 }
