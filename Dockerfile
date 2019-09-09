@@ -15,4 +15,4 @@ RUN set -e \
   && tar -xzf /tmp/signal-cli.tar.gz -C /opt \
   && ln -sf /opt/signal-cli-"${VERSION}"/bin/signal-cli /usr/local/bin/
 COPY --from=0 /go/src/github.com/ohthehugemanatee/signal-cli-container/signal-nixplay-bridge /usr/local/bin
-CMD /usr/local/bin/signal-nixplay-bridge -p $MYPHONE -g $GROUPID -e $DESTMAIL -user $SMTPUSER -pass $SMTPPASS -s $SMTPSERVER -f $SMTPFROM
+CMD /usr/local/bin/signal-nixplay-bridge -u $MYPHONE -g $GROUPID -e $DESTMAIL -user $SMTPUSER -pass $SMTPPASS -s $SMTPSERVER -f $SMTPFROM -p $SMTPPORT

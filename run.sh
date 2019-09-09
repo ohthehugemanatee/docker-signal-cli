@@ -43,4 +43,4 @@ if [ -z ${DATADIR} ]; then
 fi
 
 mkdir -p $HOME/.local/share/signal-cli
-docker run -v $DATADIR:/root/.local/share/signal-cli -e MYPHONE=${MYPHONE} -e GROUPID=${GROUPID} -e DESTMAIL=${DESTMAIL} -e SMTPUSER=${SMTPUSER} -e SMTPPASS=${SMTPPASS} -e SMTPSERVER=${SMTPSERVER} -e SMTPFROM=${SMTPFROM}  ohthehugemanatee/signal-cli
+docker run -v $DATADIR:/root/.local/share/signal-cli -e MYPHONE=${MYPHONE} -e GROUPID=${GROUPID} -e DESTMAIL=${DESTMAIL} -e SMTPUSER=${SMTPUSER} -e SMTPPASS=${SMTPPASS} -e SMTPSERVER=${SMTPSERVER} -e SMTPFROM=${SMTPFROM} -e SMTPPORT=${SMTPPORT}  ohthehugemanatee/signal-cli

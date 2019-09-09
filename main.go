@@ -103,6 +103,10 @@ func parseFlags() {
 	MailPass = *mailPassPtr
 	MailFrom = *mailFromPtr
 	MailPort = *mailPortPtr
+	// Explicitly default MailPort because run.sh will pass an empty string.
+	if MailPort == 0 {
+		MailPort = 587
+	}
 
 	if MyPhone == "" || TargetGroupID == "" || NixplayEmail == "" || MailServer == "" || MailUser == "" || MailPass == "" || MailFrom == "" {
 		flag.Usage()
