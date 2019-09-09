@@ -94,8 +94,8 @@ func parseFlags() {
 		flag.PrintDefaults()
 	}
 	flag.Parse()
-	MyPhone := *phonePtr
-	TargetGroupID := *groupPtr
+	MyPhone = *phonePtr
+	TargetGroupID = *groupPtr
 	NixplayEmail = *mailPtr
 	MailServer = *MPtr
 	MailUser = *mailUserPtr
@@ -127,23 +127,25 @@ func StartSignal(myPhone string, targetGroupID string, writer io.Writer) (*exec.
 func FilterMessages(stdout io.Reader, targetGroupID string, filenameChannel chan string, writer io.Writer) {
 	scanner := bufio.NewScanner(stdout)
 	scanner.Split(bufio.ScanLines)
-	for scanner.Scan() {
-		text := scanner.Bytes()
-		if text != nil {
-			var message Message
-			json.Unmarshal(text, &message)
-			attachments := message.Envelope.DataMessage.Attachments
-			if message.Envelope.DataMessage.GroupInfo.GroupID == targetGroupID && attachments != nil {
-				for i := 0; i < len(attachments); i++ {
-					if attachments[i].ContentType == "image/jpeg" &&
-						attachments[i].Size > 512000 {
-						filenameChannel <- strconv.Itoa(attachments[i].ID)
-						fmt.Fprintf(writer, "Send attachment id %v", attachments[i].ID)
+	go func() {
+		for scanner.Scan() {
+			text := scanner.Bytes()
+			if text != nil {
+				var message Message
+				json.Unmarshal(text, &message)
+				attachments := message.Envelope.DataMessage.Attachments
+				if message.Envelope.DataMessage.GroupInfo.GroupID == targetGroupID && attachments != nil {
+					for i := 0; i < len(attachments); i++ {
+						if attachments[i].ContentType == "image/jpeg" &&
+							attachments[i].Size > 512000 {
+							filenameChannel <- strconv.Itoa(attachments[i].ID)
+							fmt.Fprintf(writer, "Send attachment id %v", attachments[i].ID)
+						}
 					}
 				}
 			}
 		}
-	}
+	}()
 }
 
 // SendMail using the CLI-defined params.
