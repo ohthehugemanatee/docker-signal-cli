@@ -29,7 +29,7 @@ var (
 	MailUser      string
 	MailPass      string
 	MailFrom      string
-	MailPort      = 587
+	MailPort      int
 )
 
 // Attachment from signal-cli
@@ -81,13 +81,14 @@ func main() {
 }
 
 func parseFlags() {
-	phonePtr := flag.String("p", "", "the recipient account's phone number")
+	phonePtr := flag.String("u", "", "the recipient account's phone number")
 	groupPtr := flag.String("g", "", "The Signal Group ID to monitor")
 	mailPtr := flag.String("e", "", "The destination Nixplay email")
 	mailUserPtr := flag.String("user", "", "The SMTP user")
 	mailPassPtr := flag.String("pass", "", "The SMTP password")
 	MPtr := flag.String("s", "", "The SMTP Server")
 	mailFromPtr := flag.String("f", "", "The SMTP from address")
+	mailPortPtr := flag.Int("p", 587, "The SMTP server port")
 
 	flag.Usage = func() {
 		fmt.Printf("Syntax:\n\tsignal-nixplay-bridge [flags]\nwhere flags are:\n")
@@ -101,6 +102,7 @@ func parseFlags() {
 	MailUser = *mailUserPtr
 	MailPass = *mailPassPtr
 	MailFrom = *mailFromPtr
+	MailPort = *mailPortPtr
 
 	if MyPhone == "" || TargetGroupID == "" || NixplayEmail == "" || MailServer == "" || MailUser == "" || MailPass == "" || MailFrom == "" {
 		flag.Usage()
@@ -160,6 +162,6 @@ func SendMail(filenameChannel chan string) {
 
 	d := gomail.NewDialer(MailServer, MailPort, MailUser, MailPass)
 	if err := d.DialAndSend(m); err != nil {
-		log.Fatal(err)
+		log.Println(err)
 	}
 }
