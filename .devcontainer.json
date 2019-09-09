@@ -1,6 +1,6 @@
 {
 	"name": "Go for my projects",
-	"image": "quay.io/deis/go-dev:v1.22.3",
+	"image": "quay.io/deis/go-dev",
 	"extensions": [
 		"ms-vscode.go"
 	],
@@ -9,7 +9,7 @@
 		"--security-opt",
 		"seccomp=unconfined"
 	],
-	"postCreateCommand": "ln -sf /workspaces /go/src/github.com/ohthehugemanatee",
+	"postCreateCommand": "mkdir -p /go/src/github.com && ln -sf /workspaces /go/src/github.com/ohthehugemanatee",
 	"settings": {
 		"go.gopath": "/go"
 	}
