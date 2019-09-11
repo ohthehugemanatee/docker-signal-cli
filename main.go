@@ -131,10 +131,11 @@ func StartSignal(myPhone string, targetGroupID string, writer io.Writer) (*exec.
 
 // FilterMessages from stdIn.
 func FilterMessages(stdout io.Reader, targetGroupID string, filenameChannel chan string, writer io.Writer) {
-	scanner := bufio.NewScanner(stdout)
-	scanner.Split(bufio.ScanLines)
 	go func() {
+		scanner := bufio.NewScanner(stdout)
+		scanner.Split(bufio.ScanLines)
 		for scanner.Scan() {
+			fmt.Fprintf(writer, "Starting a new iteration.")
 			text := scanner.Bytes()
 			if text != nil {
 				var message Message
@@ -155,14 +156,15 @@ func FilterMessages(stdout io.Reader, targetGroupID string, filenameChannel chan
 }
 
 func processFile(filenameChannel chan string) {
-	fileName := <-filenameChannel
-	originalFilePath := "/root/.local/share/signal-cli/attachments/" + fileName
-	tmpFileName := "/tmp/" + fileName + ".jpg"
-	copyFile(originalFilePath, tmpFileName)
-	sendMail(tmpFileName)
-	err := os.Remove(tmpFileName)
-	if err != nil {
-		fmt.Println(err)
+	for fileName := range filenameChannel {
+		originalFilePath := "/root/.local/share/signal-cli/attachments/" + fileName
+		tmpFileName := "/tmp/" + fileName + ".jpg"
+		copyFile(originalFilePath, tmpFileName)
+		sendMail(tmpFileName)
+		err := os.Remove(tmpFileName)
+		if err != nil {
+			fmt.Println(err)
+		}
 	}
 }
 
