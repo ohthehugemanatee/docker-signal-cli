@@ -71,7 +71,7 @@ func main() {
 	cmd, stdout := StartSignal(MyPhone, TargetGroupID, writer)
 	filenameChannel := make(chan string)
 	defer close(filenameChannel)
-	go processFile(filenameChannel)
+	go processFile(filenameChannel, sendMail)
 	FilterMessages(stdout, TargetGroupID, filenameChannel, writer)
 	err := cmd.Wait()
 	if err != nil {
@@ -155,12 +155,11 @@ func FilterMessages(stdout io.Reader, targetGroupID string, filenameChannel chan
 	}()
 }
 
-func processFile(filenameChannel chan string) {
+func processFile(filenameChannel chan string, sendMail func(string)) {
 	for fileName := range filenameChannel {
 		originalFilePath := "/root/.local/share/signal-cli/attachments/" + fileName
 		tmpFileName := "/tmp/" + fileName + ".jpg"
 		copyFile(originalFilePath, tmpFileName)
-		sendMail(tmpFileName)
 		err := os.Remove(tmpFileName)
 		if err != nil {
 			fmt.Println(err)
