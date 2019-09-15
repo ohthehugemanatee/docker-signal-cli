@@ -15,8 +15,10 @@ $> cp env.example .env
 $> nano .env
 ```
 * Register yourself either as a new phone number (make sure to add it to the Group!), or as a "Slave device" on an existing phone number.
-
 ** New number: `run.sh signal-cli -u <your phone number> register`, and then later `run.sh signal-cli -u <your phone number> validate <your code from SMS>`. You can register with `--voice` if the phone can't receive SMS.
-** Slave device: `run.sh signal-cli link -n "optional device name"`
+** Slave device: `run.sh signal-cli link -n "optional device name"`. Pass the resulting `tsdevice:/` link through a QR code generator to scan it with your phone.
+* Once you are registered, look up the groups you belong to with `run.sh signal-cli -u <your phone number> listGroups`. Find the ID of the group you want to monitor, and add it to your `.env` file.
+* Run the service with `run.sh`
+
 
 Note: Your phone number must always include the country code. e.g. `+49123456789`. In North America it's `+1`.
