@@ -1,6 +1,7 @@
 #!/bin/sh
 
 # Sets up a signal listener which will dump content to stdout, and attachments to the mapped directory.
+. $PWD/.env
 
 # You have to set the MYPHONE env variable to your phone number, in format +4912345678901
 if [ -z ${MYPHONE} ]; then
@@ -43,4 +44,4 @@ if [ -z ${DATADIR} ]; then
 fi
 
 mkdir -p $HOME/.local/share/signal-cli
-docker run -v $DATADIR:/root/.local/share/signal-cli -e MYPHONE=${MYPHONE} -e GROUPID=${GROUPID} -e DESTMAIL=${DESTMAIL} -e SMTPUSER=${SMTPUSER} -e SMTPPASS=${SMTPPASS} -e SMTPSERVER=${SMTPSERVER} -e SMTPFROM=${SMTPFROM} -e SMTPPORT=${SMTPPORT}  ohthehugemanatee/signal-cli
+docker run -v $DATADIR:/root/.local/share/signal-cli -e MYPHONE=${MYPHONE} -e GROUPID=${GROUPID} -e DESTMAIL=${DESTMAIL} -e SMTPUSER=${SMTPUSER} -e SMTPPASS=${SMTPPASS} -e SMTPSERVER=${SMTPSERVER} -e SMTPFROM=${SMTPFROM} -e SMTPPORT=${SMTPPORT}  ohthehugemanatee/signal-cli "$@"
