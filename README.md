@@ -1,6 +1,6 @@
-# Signal Nixplay bridge
+# Signal Photo Mailer
 
-This project creates a bridge between my Signal messenger Groups and my Nixplay account. It simply logs into my signal, and when it sees an image (JPEG, > 512k) in the target group, it automatically emails it to the email address of your choice - in my case, my Nixplay address. It's basically a mail wrapper around the excellent [signal-cli](https://github.com/AsamK/signal-cli).
+This project creates a bridge between my Signal messenger Groups and email - specifically to send pictures to my digital photo frame. It simply logs into my signal, and when it sees an image (JPEG, > 512k) in the target group, it automatically emails it to the email address of your choice - in my case, my Nixplay address. It's basically a mail wrapper around the excellent [signal-cli](https://github.com/AsamK/signal-cli).
 
 **Obvious note: Files sent over email lose the privacy protetions of Signal!** Be a good person and warn any others in the chat that their images are going through your (or google's, or microsoft's...) SMTP server to your photo frame.
 
