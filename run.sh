@@ -1,7 +1,18 @@
 #!/bin/sh
 
+# Signal Photo Mailer start script.
+# Add your configuration to `.env` (you can use the included env.example as a
+# starter), and run this script to start the mailer.
+#
+# You will probably want to configure the client first. You can do that by
+# appending commands to `signal-cli` as arguments to this script. e.g.:
+# `./run.sh signal-cli -u +49123456789 register`
+# `./run.sh signal-cli -u +49123456789 listGroups`
+
+DIR="$(cd -P "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+
 # Sets up a signal listener which will dump content to stdout, and attachments to the mapped directory.
-. $PWD/.env
+. $DIR/.env
 
 # You have to set the MYPHONE env variable to your phone number, in format +4912345678901
 if [ -z ${MYPHONE} ]; then
