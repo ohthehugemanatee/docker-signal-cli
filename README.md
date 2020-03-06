@@ -9,13 +9,13 @@ This project creates a bridge between my Signal messenger Groups and email - spe
 
 
 ## Installation/Usage
-* Copy the `env.example` file to `env`, and modify it with your own configuration. If you don't know your group ID yet, make one up while you go through the registration process.
+* Copy the `env.example` file to `.env`, and modify it with your own configuration. If you don't know your group ID yet, make one up while you go through the registration process.
 ```
 $> cp env.example .env
 $> nano .env
 ```
 * Register yourself either as a new phone number (make sure to add it to the Group!), or as a "Slave device" on an existing phone number.
-  * New number: `./run.sh signal-cli -u <your phone number> register`, and then later `./run.sh signal-cli -u <your phone number> validate <your code from SMS>`. You can register with `--voice` if the phone can't receive SMS.
+  * New number: `./run.sh signal-cli -u <your phone number> register`, and then later `./run.sh signal-cli -u <your phone number> verify <your code from SMS>`. You can register with `--voice` if the phone can't receive SMS.
   * Slave device: `./run.sh signal-cli link -n "optional device name"`. Pass the resulting `tsdevice:/` link through a QR code generator to scan it with your phone.
 * Once you are registered, look up the groups you belong to with `./run.sh signal-cli -u <your phone number> listGroups`. Find the ID of the group you want to monitor, and add it to your `.env` file.
 * Run the service with `./run.sh`
